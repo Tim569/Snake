@@ -208,6 +208,7 @@ namespace Snake.Entities
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            // HACK: Placeholder Texture.
             Head.Texture = new Texture2D(spriteBatch.GraphicsDevice, _partSize, _partSize).CreateTexture(Color.Black);
 
             foreach (var part in _bodyParts)

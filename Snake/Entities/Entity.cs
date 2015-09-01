@@ -36,12 +36,11 @@ namespace Snake.Entities
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            // HACK: Placeholder Texture.
             if (Texture == null)
                 Texture = new Texture2D(spriteBatch.GraphicsDevice, Width, Height).CreateTexture(Color.Red);
 
             spriteBatch.Draw(Texture, Bounds, Color.White);
         }
-
-
     }
 }
