@@ -43,8 +43,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="Entities\Apple.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\SnakeBody.cs" />
+    <Compile Include="Entities\SnakePart.cs" />
     <Compile Include="Scenes\GameScene.cs" />
     <Compile Include="Scenes\PauseScene.cs" />
     <Compile Include="Snake.cs" />
@@ -75,6 +77,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Apple.png" />
+    <Content Include="Content\SnakeBody.png" />
+    <Content Include="Content\SnakeBodyCorner.png" />
+    <Content Include="Content\SnakeHead.png" />
     <Content Include="Icon.ico" />
     <None Include="app.config" />
     <None Include="Libs\Gease.dll" />

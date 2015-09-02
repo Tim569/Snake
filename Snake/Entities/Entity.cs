@@ -24,24 +24,15 @@ namespace Snake.Entities
             Width = width;
             Height = height;
         }
-        public void LoadContent(ContentManager content)
+
+        public virtual void Update(GameTime gameTime)
         {
 
         }
 
-        public void Update(GameTime gameTime)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
 
         }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (Texture == null)
-                Texture = new Texture2D(spriteBatch.GraphicsDevice, Width, Height).CreateTexture(Color.Red);
-
-            spriteBatch.Draw(Texture, Bounds, Color.White);
-        }
-
-
     }
 }

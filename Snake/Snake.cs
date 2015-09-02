@@ -82,14 +82,12 @@ namespace Snake
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkSeaGreen);
             _spriteBatch.Begin();
-
 
             _sceneManager.Draw(_spriteBatch);
             _spriteBatch.Draw(_exitTexture, Window.ClientBounds, _exitColor);
-
-
+            
             _spriteBatch.End();
             base.Draw(gameTime);
         }

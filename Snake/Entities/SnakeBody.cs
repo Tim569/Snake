@@ -1,42 +1,48 @@
 ﻿using Gease.Extensions;
 using Gease.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
 namespace Snake.Entities
 {
+    public enum Direction { North, East, South, West }
+
     public class SnakeBody
     {
         // Length of the body, head NOT included.
         private const int _bodyStartLength = 6;
 
-        private List<Entity> _bodyParts;
-        public List<Entity> BodyParts { get { return _bodyParts; } }
-        public Entity Head
+        private List<SnakePart> _bodyParts;
+        public List<SnakePart> BodyParts { get { return _bodyParts; } }
+        public SnakePart Head
         {
             get { return _bodyParts?[0]; }
         }
 
-        private readonly int _partSize = Config.EntitySize;
+        private Texture2D _headTexture;
+        private Texture2D _bodyTexture;
+        private Texture2D _bodyCornerTexture;
 
-        public enum Direction { North, East, South, West }
-        Direction currentDirection = Direction.North;
-        Direction nextDirection = Direction.North;
+        private readonly int _partSize = Config.EntitySize;
+        
+        private Direction _currentDirection = Direction.North;
+        private Direction _nextDirection = Direction.North;
 
         private const float _moveInterval = 0.1f;
         private float _timeSinceMove = 0f;
 
         public bool WallsActive { get; set; } = Config.WallsActive;
 
-        public List<Entity> Apples { get; set; }
+        public List<Apple> Apples { get; set; }
         public delegate void OnAppleEatenHandler(object sender, AppleEventArgs e);
         public event OnAppleEatenHandler OnAppleEaten;
         public class AppleEventArgs : EventArgs
         {
-            public Entity Apple { get; set; }
-            public AppleEventArgs(Entity apple)
+            public Apple Apple { get; set; }
+            public AppleEventArgs(Apple apple)
             {
                 Apple = apple;
             }
@@ -57,28 +63,42 @@ namespace Snake.Entities
         public event OnDeathEventHandler OnDeath;
 
 
-        public SnakeBody(List<Entity> apples)
+        public SnakeBody(List<Apple> apples)
         {
             Apples = apples;
             ResetBody();
         }
+        public void LoadContent(ContentManager content)
+        {
+            _headTexture = content.Load<Texture2D>("SnakeHead");
+            _bodyTexture = content.Load<Texture2D>("SnakeBody");
+            _bodyCornerTexture = content.Load<Texture2D>("SnakeBodyCorner");
+
+            foreach (var part in _bodyParts)
+                part.Texture = _bodyTexture;
+            Head.Texture = _headTexture;
+        }
 
         public void ResetBody()
         {
-            _bodyParts = new List<Entity>();
+            _bodyParts = new List<SnakePart>();
 
             // TODO: Random body generation.
             // var _random = new Random();
 
             var headX = _partSize * ((Config.WindowWidth / _partSize) / 2);
             var headY = _partSize * ((Config.WindowHeight / _partSize) / 2);
-            var head = new Entity(new Vector2(headX, headY), Config.EntitySize, Config.EntitySize);
+            var head = new SnakePart(new Vector2(headX, headY), Config.EntitySize, Config.EntitySize);
 
             _bodyParts.Add(head);
             for (int i = 0; i < _bodyStartLength; i++)
             {
                 SpawnPart();
             }
+
+            foreach (var part in _bodyParts)
+                part.Texture = _bodyTexture;
+            Head.Texture = _headTexture;
         }
 
         private void SpawnPart()
@@ -86,7 +106,7 @@ namespace Snake.Entities
             var partX = _bodyParts[_bodyParts.Count - 1].Position.X;
             var partY = _bodyParts[_bodyParts.Count - 1].Position.Y;
 
-            switch (currentDirection)
+            switch (_currentDirection)
             {
                 case Direction.East:
                     partX -= _partSize;
@@ -102,25 +122,28 @@ namespace Snake.Entities
                     break;
             }
 
-            _bodyParts.Add(new Entity(new Vector2(partX, partY), _partSize, _partSize));
+            var part = new SnakePart(new Vector2(partX, partY), _partSize, _partSize);
+            part.FacedDirection = _bodyParts[_bodyParts.Count - 1].FacedDirection;
+            part.Texture = _bodyTexture;
+            _bodyParts.Add(part);
         }
 
 
         public void Update(GameTime gameTime)
         {
-            if (KeyInput.IsKeyDownOnce(KeyAction.Up) && currentDirection != Direction.South)
-                nextDirection = Direction.North;
-            else if (KeyInput.IsKeyDownOnce(KeyAction.Left) && currentDirection != Direction.East)
-                nextDirection = Direction.West;
-            else if (KeyInput.IsKeyDownOnce(KeyAction.Down) && currentDirection != Direction.North)
-                nextDirection = Direction.South;
-            else if (KeyInput.IsKeyDownOnce(KeyAction.Right) && currentDirection != Direction.West)
-                nextDirection = Direction.East;
+            if (KeyInput.IsKeyDownOnce(KeyAction.Up) && _currentDirection != Direction.South)
+                _nextDirection = Direction.North;
+            else if (KeyInput.IsKeyDownOnce(KeyAction.Left) && _currentDirection != Direction.East)
+                _nextDirection = Direction.West;
+            else if (KeyInput.IsKeyDownOnce(KeyAction.Down) && _currentDirection != Direction.North)
+                _nextDirection = Direction.South;
+            else if (KeyInput.IsKeyDownOnce(KeyAction.Right) && _currentDirection != Direction.West)
+                _nextDirection = Direction.East;
 
             _timeSinceMove += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (_timeSinceMove >= _moveInterval)
             {
-                currentDirection = nextDirection;
+                _currentDirection = _nextDirection;
                 Move();
                 _timeSinceMove -= _moveInterval;
             }
@@ -141,13 +164,14 @@ namespace Snake.Entities
                 }
 
                 Head.Position = nextHeadPosition;
+                UpdateFacedDirections();
             }
         }
 
         private Vector2 GetNextHeadPosition()
         {
             var nextHeadPosition = Vector2.Zero;
-            switch (currentDirection)
+            switch (_currentDirection)
             {
                 case Direction.East:
                     nextHeadPosition = new Vector2(Head.Position.X + _partSize, Head.Position.Y);
@@ -205,11 +229,31 @@ namespace Snake.Entities
             }
         }
 
+        private void UpdateFacedDirections()
+        {
+            Head.FacedDirection = _currentDirection;
+            for (int i = _bodyParts.Count - 1; i >= 1; i--)
+            {
+                _bodyParts[i].FacedDirection = _bodyParts[i - 1].FacedDirection;
+
+                //if (i == _bodyParts.Count - 1)
+                //    continue;
+
+                // If previous part had different Directions in the two updates;
+                if (_bodyParts[i].FacedDirection != _bodyParts[i].FacedDirectionOld)
+                {
+                    // Be Corner Texture;
+                    _bodyParts[i].Texture = _bodyCornerTexture;
+                }
+                else
+                    _bodyParts[i].Texture = _bodyTexture;
+            }
+            Head.FacedDirectionOld = _currentDirection;
+        }
+
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            Head.Texture = new Texture2D(spriteBatch.GraphicsDevice, _partSize, _partSize).CreateTexture(Color.Black);
-
             foreach (var part in _bodyParts)
             {
                 part.Draw(spriteBatch);

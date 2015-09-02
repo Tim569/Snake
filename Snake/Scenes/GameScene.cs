@@ -4,13 +4,16 @@ using Gease.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Snake.Entities;
+using Microsoft.Xna.Framework.Content;
 
 namespace Snake.Scenes
 {
     public class GameScene : Scene
     {
         private SnakeBody _snake;
-        private List<Entity> _apples = new List<Entity>();
+        private List<Apple> _apples = new List<Apple>();
+        private Texture2D _appleTexture;
+
 
         private bool _isGameOver = false;
 
@@ -22,6 +25,14 @@ namespace Snake.Scenes
             _snake.OnAppleEaten += OnAppleEaten;
 
             SpawnApple();
+        }
+        public override void LoadContent()
+        {
+            _snake.LoadContent(ContentManager);
+
+            _appleTexture = ContentManager.Load<Texture2D>("Apple");
+            foreach (var apple in _apples)
+                apple.Texture = _appleTexture;
         }
         
         private void OnSnakeDeath(object sender, EventArgs e) => _isGameOver = true;
@@ -36,14 +47,14 @@ namespace Snake.Scenes
         {
             var random = new Random();
 
-            Entity apple = null;
+            Apple apple = null;
             bool isMisplaced = true;
             while (isMisplaced)
             {
                 isMisplaced = false;
                 var appleX = random.Next(0, Config.WindowWidth / Config.EntitySize) * Config.EntitySize;
                 var appleY = random.Next(0, Config.WindowHeight / Config.EntitySize) * Config.EntitySize;
-                apple = new Entity(new Vector2(appleX, appleY), Config.EntitySize, Config.EntitySize);
+                apple = new Apple(new Vector2(appleX, appleY), Config.EntitySize, Config.EntitySize);
 
                 foreach (var snakePart in _snake.BodyParts)
                 {
@@ -56,6 +67,7 @@ namespace Snake.Scenes
                         isMisplaced = true;
                 }
             }
+            apple.Texture = _appleTexture;
 
             _apples.Add(apple);
         }
