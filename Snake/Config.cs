@@ -18,6 +18,7 @@
 
         public static int EntityCountOnX { get; set; } = 25;
         public static int EntitySize { get; } = WindowWidth / EntityCountOnX;
+
         public static bool WallsActive { get; set; } = false;
     }
 }

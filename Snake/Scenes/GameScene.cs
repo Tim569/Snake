@@ -10,17 +10,16 @@ namespace Snake.Scenes
 {
     public class GameScene : Scene
     {
-        private SnakeBody _snake;
+        private Entities.Snake _snake;
         private List<Apple> _apples = new List<Apple>();
         private Texture2D _appleTexture;
-
 
         private bool _isGameOver = false;
 
 
         public GameScene() : base(nameof(GameScene))
         {
-            _snake = new SnakeBody(_apples);
+            _snake = new Entities.Snake(_apples);
             _snake.OnDeath += OnSnakeDeath;
             _snake.OnAppleEaten += OnAppleEaten;
 
@@ -37,12 +36,12 @@ namespace Snake.Scenes
         
         private void OnSnakeDeath(object sender, EventArgs e) => _isGameOver = true;
 
-        private void OnAppleEaten(object sender, SnakeBody.AppleEventArgs e)
+        private void OnAppleEaten(object sender, EventArgs e)
         {
-            _apples.Remove(e.Apple);
+            _apples.Remove((Apple) sender);
             SpawnApple();
         }
-
+        
         private void SpawnApple()
         {
             var random = new Random();
@@ -87,11 +86,15 @@ namespace Snake.Scenes
         {
             base.Draw(spriteBatch);
 
+            spriteBatch.Begin();
+
             _snake.Draw(spriteBatch);
             foreach (var apple in _apples)
             {
                 apple.Draw(spriteBatch);
             }
+
+            spriteBatch.End();
         }
     }
 }

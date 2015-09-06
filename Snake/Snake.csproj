@@ -45,11 +45,12 @@
     <Compile Include="Config.cs" />
     <Compile Include="Entities\Apple.cs" />
     <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\SnakeBody.cs" />
+    <Compile Include="Entities\Snake.cs" />
+    <Compile Include="Entities\SnakeMovement.cs" />
     <Compile Include="Entities\SnakePart.cs" />
     <Compile Include="Scenes\GameScene.cs" />
     <Compile Include="Scenes\PauseScene.cs" />
-    <Compile Include="Snake.cs" />
+    <Compile Include="SnakeGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

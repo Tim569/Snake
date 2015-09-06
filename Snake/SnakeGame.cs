@@ -8,7 +8,7 @@ using Gease.Extensions;
 
 namespace Snake
 {
-    public class Snake : Game
+    public class SnakeGame : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -21,10 +21,10 @@ namespace Snake
         private Color _exitColor;
 
 
-        public Snake()
+        public SnakeGame()
         {
-            Window.Title = nameof(Snake);
-            Window.AllowUserResizing = true;
+            Window.Title = nameof(SnakeGame);
+            Window.AllowUserResizing = false;
 
             _graphics = new GraphicsDeviceManager(this);
             _graphics.PreferredBackBufferWidth = Config.WindowWidth;
@@ -48,7 +48,7 @@ namespace Snake
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _sceneManager.ChangeScene(nameof(GameScene), false);
-
+            
             _exitTexture = new Texture2D(_spriteBatch.GraphicsDevice, Config.WindowWidth, Config.WindowHeight).CreateTexture(Color.Black);
         }
         protected override void UnloadContent()
@@ -61,10 +61,11 @@ namespace Snake
             HandleInput(gameTime);
 
             _sceneManager.Update(gameTime);
+            
+            base.Update(gameTime);
 
             KeyInput.Update(gameTime);
             MouseInput.Update(gameTime);
-            base.Update(gameTime);
         }
 
         private void HandleInput(GameTime gameTime)
@@ -72,23 +73,31 @@ namespace Snake
             if (KeyInput.IsKeyDown(KeyAction.Exit) && KeyInput.KeyPressDuration(KeyAction.Exit) >= _exitTransitionTime)
                 Exit();
             else if (KeyInput.IsKeyUpOnce(KeyAction.Exit))
+            {
                 if (_sceneManager.CurrentScene.GetType() == typeof(PauseScene))
-                    _sceneManager.ChangeScene("Main", false);
+                    _sceneManager.ChangeScene(nameof(GameScene), false);
                 else
-                    _sceneManager.ChangeScene("Menu", false);
-
-            _exitColor = new Color(_exitColor, (KeyInput.KeyPressDuration(KeyAction.Exit) - _exitIgnoreTime) / (_exitTransitionTime / _exitIgnoreTime));
+                    _sceneManager.ChangeScene(nameof(PauseScene), false);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DarkSeaGreen);
+            
+            _sceneManager.Draw(_spriteBatch);
+
+
             _spriteBatch.Begin();
 
-            _sceneManager.Draw(_spriteBatch);
+            if (KeyInput.IsKeyDown(KeyAction.Exit))
+                _exitColor = new Color(_exitColor, (KeyInput.KeyPressDuration(KeyAction.Exit) - _exitIgnoreTime) / (_exitTransitionTime / _exitIgnoreTime));
+            else
+                _exitColor = Color.Transparent;
             _spriteBatch.Draw(_exitTexture, Window.ClientBounds, _exitColor);
             
             _spriteBatch.End();
+
             base.Draw(gameTime);
         }
     }
