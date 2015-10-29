@@ -1,4 +1,7 @@
-﻿namespace Snake
+﻿using System;
+using System.IO;
+
+namespace Snake
 {
     public static class Config
     {
@@ -13,12 +16,14 @@
 
         }
 
-        public static int WindowWidth { get; set; } = 800;
-        public static int WindowHeight { get; set; } = WindowWidth / 4 * 3;
+        public static int EntitySize { get; } = 32;
+        public static int EntityCountPerAxis { get; set; } = 16;
 
-        public static int EntityCountOnX { get; set; } = 25;
-        public static int EntitySize { get; } = WindowWidth / EntityCountOnX;
+        public static int WindowWidth { get; set; } = EntitySize * EntityCountPerAxis;
+        public static int WindowHeight { get; set; } = WindowWidth;
 
-        public static bool WallsActive { get; set; } = false;
+        public static string HighScoreFile { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "!Snake", "HighScore.save");
+
+        public static bool WallsActive { get; set; } = true;
     }
 }

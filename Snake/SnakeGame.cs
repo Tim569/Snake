@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Snake.Scenes;
 using Gease.Extensions;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.Xna.Framework.Input;
 
 namespace Snake
 {
@@ -38,7 +41,6 @@ namespace Snake
         {
             _sceneManager = new SceneManager();
             _sceneManager.AddScene<GameScene>(new ContentManager(Services, Content.RootDirectory));
-            _sceneManager.AddScene<PauseScene>(new ContentManager(Services, Content.RootDirectory));
 
             base.Initialize();
         }
@@ -70,15 +72,13 @@ namespace Snake
 
         private void HandleInput(GameTime gameTime)
         {
+            if (KeyInput.IsKeyDownOnce(Keys.R))
+            {
+                Initialize();
+            }
+
             if (KeyInput.IsKeyDown(KeyAction.Exit) && KeyInput.KeyPressDuration(KeyAction.Exit) >= _exitTransitionTime)
                 Exit();
-            else if (KeyInput.IsKeyUpOnce(KeyAction.Exit))
-            {
-                if (_sceneManager.CurrentScene.GetType() == typeof(PauseScene))
-                    _sceneManager.ChangeScene(nameof(GameScene), false);
-                else
-                    _sceneManager.ChangeScene(nameof(PauseScene), false);
-            }
         }
 
         protected override void Draw(GameTime gameTime)

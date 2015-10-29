@@ -15,8 +15,9 @@ namespace Snake.Entities
         private SnakeMovement _movement;
 
         // Length of the body, head NOT included.
-        private const int _bodyStartLength = 6;
+        private const int _bodyStartLength = 3;
         private readonly int _partSize = Config.EntitySize;
+        private const int _distanceToWallAtSpawn = 1;
 
         private List<SnakePart> _bodyParts;
         public List<SnakePart> BodyParts { get { return _bodyParts; } }
@@ -66,14 +67,34 @@ namespace Snake.Entities
         public void ResetBody()
         {
             _bodyParts = new List<SnakePart>();
-            _movement = new SnakeMovement(this);
-
-            // TODO: Random body generation.
-            // var _random = new Random();
-
-            var headX = _partSize * ((Config.WindowWidth / _partSize) / 2);
-            var headY = _partSize * ((Config.WindowHeight / _partSize) / 2);
+            
+            var _random = new Random();
+            
+            var headX = _partSize * _random.Next(_distanceToWallAtSpawn, (Config.WindowWidth - _partSize) / _partSize - _distanceToWallAtSpawn);
+            var headY = _partSize * _random.Next(_distanceToWallAtSpawn, (Config.WindowHeight - _partSize) / _partSize - _distanceToWallAtSpawn);
             var head = new SnakePart(new Vector2(headX, headY), Config.EntitySize, Config.EntitySize);
+
+            var direction = (Direction)_random.Next(Enum.GetNames(typeof(Direction)).Length);
+            bool validDirection = false;
+            switch (direction)
+            {
+                case Direction.North:
+                    validDirection = headY + _partSize + _bodyStartLength * _partSize <= Config.WindowHeight;
+                    break;
+                case Direction.East:
+                    validDirection = headX - _bodyStartLength * _partSize >= 0;
+                    break;
+                case Direction.South:
+                    validDirection = headY - _bodyStartLength * _partSize >= 0;
+                    break;
+                case Direction.West:
+                    validDirection = headX + _partSize + _bodyStartLength * _partSize <= Config.WindowWidth;
+                    break;
+            }
+            direction = validDirection ? direction : (Direction) (((int) direction + 2) % 4);
+
+            _movement = new SnakeMovement(this, direction);
+            
 
             _bodyParts.Add(head);
             for (int i = 0; i < _bodyStartLength; i++)
@@ -82,8 +103,12 @@ namespace Snake.Entities
             }
 
             foreach (var part in _bodyParts)
+            {
                 part.Texture = BodyTexture;
+                part.FacedDirection = direction;
+            }
             Head.Texture = HeadTexture;
+            head.FacedDirection = direction;
         }
 
         public void SpawnPart()

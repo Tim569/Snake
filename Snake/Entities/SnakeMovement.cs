@@ -18,19 +18,21 @@ namespace Snake.Entities
             get { return _bodyParts.Count > 0 ? _bodyParts?[0] : null; }
         }
 
-        public Direction CurrentDirection { get; set; } = Direction.North;
-        private Direction _nextDirection = Direction.North;
+        public Direction CurrentDirection { get; set; }
+        public Direction _nextDirection;
 
         private const float _moveInterval = 0.1f;
         private float _timeSinceMove = 0f;
 
         public bool WallsActive { get; set; } = Config.WallsActive;
 
-
-        public SnakeMovement(Snake snake)
+        public SnakeMovement(Snake snake) : this(snake, Direction.North) { }
+        public SnakeMovement(Snake snake, Direction dir)
         {
             _snake = snake;
             _bodyParts = _snake.BodyParts;
+            CurrentDirection = dir;
+            _nextDirection = dir;
         }
 
         public void Update(GameTime gameTime)
