@@ -26,7 +26,7 @@ namespace Snake
 
         public SnakeGame()
         {
-            Window.Title = nameof(SnakeGame);
+            Window.Title = "Snake";
             Window.AllowUserResizing = false;
 
             _graphics = new GraphicsDeviceManager(this);

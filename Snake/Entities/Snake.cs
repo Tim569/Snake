@@ -68,7 +68,7 @@ namespace Snake.Entities
         {
             _bodyParts = new List<SnakePart>();
             
-            var _random = new Random();
+            var _random = new Random(Guid.NewGuid().GetHashCode());
             
             var headX = _partSize * _random.Next(_distanceToWallAtSpawn, (Config.WindowWidth - _partSize) / _partSize - _distanceToWallAtSpawn);
             var headY = _partSize * _random.Next(_distanceToWallAtSpawn, (Config.WindowHeight - _partSize) / _partSize - _distanceToWallAtSpawn);

@@ -95,7 +95,7 @@ namespace Snake.Scenes
         
         private void SpawnApple()
         {
-            var random = new Random();
+            var random = new Random(Guid.NewGuid().GetHashCode());
 
             Apple apple = null;
             bool isMisplaced = true;
